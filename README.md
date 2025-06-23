@@ -5,10 +5,13 @@ displays them in the same style as
 
 ## Getting started
 We prefer using the [uv package manager](https://docs.astral.sh/uv/), as it 
-will automatically create a virtual environment for you.
+will automatically create a virtual environment for you. Alternatively, you 
+can use `pip install regceritpy` within any other Python environment that 
+you manage.
 
 ```
 $ uv venv
+$ source .venv/bin/activate
 $ uv pip install regcertipy
 $ regcertipy -h
 usage: regcertipy [-h] regfile
