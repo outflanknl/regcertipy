@@ -6,7 +6,7 @@ displays them in the same style as
 ## Getting started
 We prefer using the [uv package manager](https://docs.astral.sh/uv/), as it 
 will automatically create a virtual environment for you. Alternatively, you 
-can use `pip install regceritpy` within any other Python environment that 
+can use `pip install regcertipy` within any other Python environment that 
 you manage.
 
 ```
