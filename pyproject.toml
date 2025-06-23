@@ -1,0 +1,28 @@
+[project]
+name = "regcertipy"
+version = "1.0.0"
+description = """
+Parses cached certificate templates from a Windows Registry file and \
+displays them in the same style as Certipy does.
+"""
+readme = "README.md"
+authors = [
+    { name = "Max Grim", email = "max@outflank.nl" },
+    { name = "Cedric van Bockhaven", email = "cedric@outflank.nl" },
+]
+requires-python = ">=3.12"
+dependencies = [
+    "certipy-ad==4.8.2",
+]
+
+[project.scripts]
+regcertipy = "regcertipy:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+]

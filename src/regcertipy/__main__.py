@@ -1,0 +1,3 @@
+import regcertipy
+
+regcertipy.main()
