@@ -2,7 +2,7 @@ import argparse
 
 from certipy.commands.find import Find
 from regcertipy.models import CertTemplate
-from regcertipy.parsers import RegfileParser
+from regcertipy.parsers import RegfileParser, RegBofParser
 from datetime import datetime
 from .utils import sid_to_name
 import functools
@@ -69,6 +69,13 @@ def main():
     )
     parser.add_argument("regfile", help="Path to the .reg file.")
     parser.add_argument("-s", "--sid-file", help="File containing the user's SIDs")
+    parser.add_argument(
+        "-f",
+        "--input-format",
+        choices=[".reg", "reg_bof"],
+        help="Format of input file",
+        default=".reg",
+    )
     output_group = parser.add_argument_group("output options")
     output_group.add_argument(
         "-text",
@@ -119,7 +126,10 @@ def main():
     else:
         neo4j_driver = None
 
-    parser = RegfileParser(args.regfile)
+    if args.input_format == ".reg":
+        parser = RegfileParser(args.regfile)
+    elif args.input_format == "reg_bof":
+        parser = RegBofParser(args.regfile)
 
     templates = []
 

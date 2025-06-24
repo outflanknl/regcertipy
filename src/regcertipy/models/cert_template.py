@@ -29,9 +29,7 @@ class CertTemplate:
             self.schema_version = int(self.schema_version)
         else:
             self.schema_version = 1
-        self.oid = (
-            self.data["msPKI-Cert-Template-OID"].decode("utf-16-le").rstrip("\0\0")
-        )
+        self.oid = self.data["msPKI-Cert-Template-OID"]
         self.validity_period = filetime_to_str(self.data["ValidityPeriod"])
         self.renewal_period = filetime_to_str(self.data["RenewalOverlap"])
         self.name_flags = CertificateNameFlag(self.data["msPKI-Certificate-Name-Flag"])
@@ -43,28 +41,19 @@ class CertTemplate:
         self.extended_key_usage = list(
             map(
                 lambda x: OID_TO_STR_MAP[x] if x in OID_TO_STR_MAP else x,
-                data["ExtKeyUsageSyntax"]
-                .decode("utf-16-le")
-                .rstrip("\0\0")
-                .split("\0"),
+                data["ExtKeyUsageSyntax"],
             )
         )
         self.application_policies = list(
             map(
                 lambda x: OID_TO_STR_MAP[x] if x in OID_TO_STR_MAP else x,
-                data["msPKI-RA-Application-Policies"]
-                .decode("utf-16-le")
-                .rstrip("\0\0")
-                .split("\0"),
+                data["msPKI-RA-Application-Policies"],
             )
         )
         self.issuance_policies = list(
             map(
                 lambda x: OID_TO_STR_MAP[x] if x in OID_TO_STR_MAP else x,
-                data["msPKI-Certificate-Policy"]
-                .decode("utf-16-le")
-                .rstrip("\0\0")
-                .split("\0"),
+                data["msPKI-Certificate-Policy"],
             )
         )
 

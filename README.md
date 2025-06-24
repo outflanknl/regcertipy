@@ -14,8 +14,8 @@ $ uv venv
 $ source .venv/bin/activate
 $ uv pip install regcertipy
 $ regcertipy -h
-usage: regcertipy [-h] [-s SID_FILE] [-text] [-stdout] [-json] [-csv]
-                  [-output prefix] [--neo4j-user NEO4J_USER]
+usage: regcertipy [-h] [-s SID_FILE] [-f {.reg,reg_bof}] [-text] [-stdout]
+                  [-json] [-csv] [-output prefix] [--neo4j-user NEO4J_USER]
                   [--neo4j-pass NEO4J_PASS] [--neo4j-host NEO4J_HOST]
                   [--neo4j-port NEO4J_PORT] [--use-owned-sids]
                   regfile
@@ -29,6 +29,8 @@ options:
   -h, --help            show this help message and exit
   -s SID_FILE, --sid-file SID_FILE
                         File containing the user's SIDs
+  -f {.reg,reg_bof}, --input-format {.reg,reg_bof}
+                        Format of input file
 
 output options:
   -text                 Output result as formatted text file
@@ -78,8 +80,8 @@ production branch.
 $ uv sync --dev # Also installs the Black code formatter.
 $ uv run black . # To format the current code base.
 $ uv run regcertipy -h
-usage: regcertipy [-h] [-s SID_FILE] [-text] [-stdout] [-json] [-csv]
-                  [-output prefix] [--neo4j-user NEO4J_USER]
+usage: regcertipy [-h] [-s SID_FILE] [-f {.reg,reg_bof}] [-text] [-stdout]
+                  [-json] [-csv] [-output prefix] [--neo4j-user NEO4J_USER]
                   [--neo4j-pass NEO4J_PASS] [--neo4j-host NEO4J_HOST]
                   [--neo4j-port NEO4J_PORT] [--use-owned-sids]
                   regfile
@@ -93,6 +95,8 @@ options:
   -h, --help            show this help message and exit
   -s SID_FILE, --sid-file SID_FILE
                         File containing the user's SIDs
+  -f {.reg,reg_bof}, --input-format {.reg,reg_bof}
+                        Format of input file
 
 output options:
   -text                 Output result as formatted text file

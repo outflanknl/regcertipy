@@ -41,6 +41,15 @@ class RegfileParser(configparser.RawConfigParser):
                 elif isinstance(v, str) and v.startswith('"') and v.endswith('"'):
                     v = v.lstrip('"').rstrip('"')
 
+                # It is hard to distinguish REG_MULTI_SZ, so we just hardcode some keys that we know have this type
+                if stripped_key in [
+                    "ExtKeyUsageSyntax",
+                    "msPKI-RA-Application-Policies",
+                    "msPKI-Cert-Template-OID",
+                    "msPKI-Certificate-Policy",
+                ]:
+                    v = v.decode("utf-16-le").rstrip("\0\0").split("\0")
+
                 resulting_dict[section][stripped_key] = v
 
         return resulting_dict
