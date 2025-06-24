@@ -3,13 +3,13 @@ from typing import Dict
 import regcertipy.utils
 from certipy.commands.find import filetime_to_str
 from certipy.lib.constants import (
-    CERTIFICATE_RIGHTS,
+    CertificateRights,
     EXTENDED_RIGHTS_NAME_MAP,
-    MS_PKI_CERTIFICATE_NAME_FLAG,
-    MS_PKI_ENROLLMENT_FLAG,
+    CertificateNameFlag,
+    EnrollmentFlag,
     OID_TO_STR_MAP,
 )
-from certipy.lib.security import CertifcateSecurity
+from certipy.lib.security import CertificateSecurity
 
 
 class CertTemplate:
@@ -23,13 +23,9 @@ class CertTemplate:
         )
         self.validity_period = filetime_to_str(self.data["ValidityPeriod"])
         self.renewal_period = filetime_to_str(self.data["RenewalOverlap"])
-        self.name_flags = MS_PKI_CERTIFICATE_NAME_FLAG(
-            self.data["msPKI-Certificate-Name-Flag"]
-        )
+        self.name_flags = CertificateNameFlag(self.data["msPKI-Certificate-Name-Flag"])
 
-        self.enrollment_flags = MS_PKI_ENROLLMENT_FLAG(
-            self.data["msPKI-Enrollment-Flag"]
-        )
+        self.enrollment_flags = EnrollmentFlag(self.data["msPKI-Enrollment-Flag"])
         self.signatures_required = self.data["msPKI-RA-Signature"]
 
         self.extended_key_usage = list(
@@ -46,7 +42,7 @@ class CertTemplate:
 
     @staticmethod
     def _build_permissions(security_dict: Dict):
-        security = CertifcateSecurity(security_dict)
+        security = CertificateSecurity(security_dict)
 
         enrollment_permissions = {}
         enrollment_rights = []
@@ -78,11 +74,11 @@ class CertTemplate:
         object_control_permissions = {"Owner": security.owner}
 
         rights_mapping = [
-            (CERTIFICATE_RIGHTS.GENERIC_ALL, [], "Full Control Principals"),
-            (CERTIFICATE_RIGHTS.WRITE_OWNER, [], "Write Owner Principals"),
-            (CERTIFICATE_RIGHTS.WRITE_DACL, [], "Write Dacl Principals"),
+            (CertificateRights.GENERIC_ALL, [], "Full Control Principals"),
+            (CertificateRights.WRITE_OWNER, [], "Write Owner Principals"),
+            (CertificateRights.WRITE_DACL, [], "Write Dacl Principals"),
             (
-                CERTIFICATE_RIGHTS.WRITE_PROPERTY,
+                CertificateRights.WRITE_PROPERTY,
                 [],
                 "Write Property Principals",
             ),

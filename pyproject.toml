@@ -12,7 +12,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "certipy-ad==4.8.2",
+    "certipy-ad==5.0.3",
 ]
 
 [project.scripts]
