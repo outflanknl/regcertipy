@@ -1,12 +1,11 @@
 import argparse
 
-from certipy.lib.formatting import pretty_print
 from certipy.commands.find import Find
 from regcertipy.models import CertTemplate
 from regcertipy.parsers import RegfileParser
 from datetime import datetime
 from .utils import sid_to_name
-from collections import OrderedDict
+import functools
 
 
 class MockTarget:
@@ -16,17 +15,28 @@ class MockTarget:
 class MockLDAPConnection:
     user_sids = []
 
-    def __init__(self, sid_file):
+    def __init__(self, sid_file, neo4j_driver=None):
         if sid_file:
             with open(sid_file) as f:
                 for line in f:
                     self.user_sids.append(line[:-1])
+        self.neo4j_driver = neo4j_driver
 
     def get_user_sids(self, *args, **kwargs):
         return self.user_sids
 
+    @functools.cache
     def lookup_sid(self, sid, **kwargs):
-        return {"name": sid_to_name(sid)}
+        name = sid_to_name(sid)
+        if name != sid:
+            return {"name": name}
+        if self.neo4j_driver:
+            records, _, _ = self.neo4j_driver.execute_query(
+                "MATCH (g:Group {objectid:'%s'}) return g.name" % (sid,)
+            )
+            if records:
+                return {"name": records[0]["g.name"]}
+        return {"name": name}
 
 
 class MyFind(Find):
@@ -77,7 +87,23 @@ def main():
         metavar="prefix",
         help="Filename prefix for writing results to",
     )
+
+    neo4j = parser.add_argument_group("BloodHound")
+    neo4j.add_argument("--neo4j-user", help="Username for neo4j")
+    neo4j.add_argument("--neo4j-pass", help="Password for neo4j")
+    neo4j.add_argument("--neo4j-host", help="Host for neo4j", default="localhost")
+    neo4j.add_argument("--neo4j-port", help="Port for neo4j", default=7687)
     args = parser.parse_args()
+
+    if args.neo4j_user and args.neo4j_pass:
+        from neo4j import GraphDatabase
+
+        neo4j_driver = GraphDatabase.driver(
+            f"neo4j://{args.neo4j_host}:{args.neo4j_port}",
+            auth=(args.neo4j_user, args.neo4j_pass),
+        )
+    else:
+        neo4j_driver = None
 
     parser = RegfileParser(args.regfile)
 
@@ -101,7 +127,7 @@ def main():
 
     find = MyFind(
         target=MockTarget(),
-        connection=MockLDAPConnection(args.sid_file),
+        connection=MockLDAPConnection(args.sid_file, neo4j_driver=neo4j_driver),
         stdout=args.stdout,
         text=args.text,
         json=args.json,

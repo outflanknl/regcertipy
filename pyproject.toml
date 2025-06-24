@@ -26,3 +26,6 @@ build-backend = "hatchling.build"
 dev = [
     "black>=25.1.0",
 ]
+bloodhound = [
+    "neo4j",
+]
