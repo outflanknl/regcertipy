@@ -50,6 +50,33 @@ def main():
     )
     parser.add_argument("regfile", help="Path to the .reg file.")
     parser.add_argument("-s", "--sid-file", help="File containing the user's SIDs")
+    output_group = parser.add_argument_group("output options")
+    output_group.add_argument(
+        "-text",
+        action="store_true",
+        help="Output result as formatted text file",
+    )
+    output_group.add_argument(
+        "-stdout",
+        action="store_true",
+        help="Output result as text directly to console",
+    )
+    output_group.add_argument(
+        "-json",
+        action="store_true",
+        help="Output result as JSON",
+    )
+    output_group.add_argument(
+        "-csv",
+        action="store_true",
+        help="Output result as CSV",
+    )
+    output_group.add_argument(
+        "-output",
+        action="store",
+        metavar="prefix",
+        help="Filename prefix for writing results to",
+    )
     args = parser.parse_args()
 
     parser = RegfileParser(args.regfile)
@@ -75,14 +102,17 @@ def main():
     find = MyFind(
         target=MockTarget(),
         connection=MockLDAPConnection(args.sid_file),
-        stdout=True,
-        text=True,
+        stdout=args.stdout,
+        text=args.text,
+        json=args.json,
     )
     for template in templates:
         user_can_enroll, enrollable_sids = find.can_user_enroll_in_template(template)
         template.set("Can Enroll", user_can_enroll)
         template.set("Enrollable SIDs", [sid_to_name(sid) for sid in enrollable_sids])
-    prefix = datetime.now().strftime("%Y%m%d%H%M%S")
+        prefix = (
+            datetime.now().strftime("%Y%m%d%H%M%S") if not args.output else args.output
+        )
     find._save_output(templates=templates, cas=[], oids=[], prefix=prefix)
 
 
