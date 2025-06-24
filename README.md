@@ -17,7 +17,7 @@ $ regcertipy -h
 usage: regcertipy [-h] [-s SID_FILE] [-text] [-stdout] [-json] [-csv]
                   [-output prefix] [--neo4j-user NEO4J_USER]
                   [--neo4j-pass NEO4J_PASS] [--neo4j-host NEO4J_HOST]
-                  [--neo4j-port NEO4J_PORT]
+                  [--neo4j-port NEO4J_PORT] [--use-owned-sids]
                   regfile
 
 Regfile ingestor for Certipy
@@ -46,6 +46,7 @@ BloodHound:
                         Host for neo4j
   --neo4j-port NEO4J_PORT
                         Port for neo4j
+  --use-owned-sids      Use the SIDs of all owned principals as the user SIDs
 ```
 
 Use regedit.exe to export the keys under 
@@ -80,7 +81,7 @@ $ uv run regcertipy -h
 usage: regcertipy [-h] [-s SID_FILE] [-text] [-stdout] [-json] [-csv]
                   [-output prefix] [--neo4j-user NEO4J_USER]
                   [--neo4j-pass NEO4J_PASS] [--neo4j-host NEO4J_HOST]
-                  [--neo4j-port NEO4J_PORT]
+                  [--neo4j-port NEO4J_PORT] [--use-owned-sids]
                   regfile
 
 Regfile ingestor for Certipy
@@ -109,6 +110,7 @@ BloodHound:
                         Host for neo4j
   --neo4j-port NEO4J_PORT
                         Port for neo4j
+  --use-owned-sids      Use the SIDs of all owned principals as the user SIDs
 ```
 
 You can also run the `__init__.py` or `__main.py__` Python file in your 

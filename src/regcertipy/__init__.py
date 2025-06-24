@@ -15,15 +15,24 @@ class MockTarget:
 class MockLDAPConnection:
     user_sids = []
 
-    def __init__(self, sid_file, neo4j_driver=None):
+    def __init__(self, sid_file, neo4j_driver=None, use_owned_sids=False):
+        self.neo4j_driver = neo4j_driver
         if sid_file:
             with open(sid_file) as f:
                 for line in f:
                     self.user_sids.append(line[:-1])
-        self.neo4j_driver = neo4j_driver
+        if use_owned_sids and self.neo4j_driver:
+            self.get_owned_sids()
 
     def get_user_sids(self, *args, **kwargs):
         return self.user_sids
+
+    def get_owned_sids(self):
+        records, _, _ = self.neo4j_driver.execute_query(
+            "MATCH (u:User)-[:MemberOf*1..]->(g:Group) WHERE COALESCE(u.system_tags, '') CONTAINS 'owned' return g.objectid"
+        )
+        for record in records:
+            self.user_sids.append(record["g.objectid"])
 
     @functools.cache
     def lookup_sid(self, sid, **kwargs):
@@ -88,11 +97,16 @@ def main():
         help="Filename prefix for writing results to",
     )
 
-    neo4j = parser.add_argument_group("BloodHound")
-    neo4j.add_argument("--neo4j-user", help="Username for neo4j")
-    neo4j.add_argument("--neo4j-pass", help="Password for neo4j")
-    neo4j.add_argument("--neo4j-host", help="Host for neo4j", default="localhost")
-    neo4j.add_argument("--neo4j-port", help="Port for neo4j", default=7687)
+    bloodhound = parser.add_argument_group("BloodHound")
+    bloodhound.add_argument("--neo4j-user", help="Username for neo4j")
+    bloodhound.add_argument("--neo4j-pass", help="Password for neo4j")
+    bloodhound.add_argument("--neo4j-host", help="Host for neo4j", default="localhost")
+    bloodhound.add_argument("--neo4j-port", help="Port for neo4j", default=7687)
+    bloodhound.add_argument(
+        "--use-owned-sids",
+        help="Use the SIDs of all owned principals as the user SIDs",
+        action="store_true",
+    )
     args = parser.parse_args()
 
     if args.neo4j_user and args.neo4j_pass:
@@ -127,7 +141,9 @@ def main():
 
     find = MyFind(
         target=MockTarget(),
-        connection=MockLDAPConnection(args.sid_file, neo4j_driver=neo4j_driver),
+        connection=MockLDAPConnection(
+            args.sid_file, neo4j_driver=neo4j_driver, use_owned_sids=args.use_owned_sids
+        ),
         stdout=args.stdout,
         text=args.text,
         json=args.json,
