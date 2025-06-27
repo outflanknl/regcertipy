@@ -41,7 +41,7 @@ class MockLDAPConnection:
             return {"name": name}
         if self.neo4j_driver:
             records, _, _ = self.neo4j_driver.execute_query(
-                "MATCH (g:Group {objectid:'%s'}) return g.name" % (sid,)
+                "MATCH (g {objectid:'%s'}) return g.name" % (sid,)
             )
             if records:
                 return {"name": records[0]["g.name"]}
