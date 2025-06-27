@@ -158,13 +158,13 @@ def main():
         text=args.text,
         json=args.json,
     )
+
     for template in templates:
         user_can_enroll, enrollable_sids = find.can_user_enroll_in_template(template)
         template.set("Can Enroll", user_can_enroll)
         template.set("Enrollable SIDs", [sid_to_name(sid) for sid in enrollable_sids])
-        prefix = (
-            datetime.now().strftime("%Y%m%d%H%M%S") if not args.output else args.output
-        )
+
+    prefix = datetime.now().strftime("%Y%m%d%H%M%S") if not args.output else args.output
     find._save_output(templates=templates, cas=[], oids=[], prefix=prefix)
 
 
