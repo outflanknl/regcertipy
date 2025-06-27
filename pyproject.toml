@@ -1,6 +1,6 @@
 [project]
 name = "regcertipy"
-version = "1.0.0"
+version = "1.1.0"
 description = """
 Parses cached certificate templates from a Windows Registry file and \
 displays them in the same style as Certipy does.
@@ -12,7 +12,8 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "certipy-ad==4.8.2",
+    "certipy-ad==5.0.3",
+    "neo4j>=5.28.1",
 ]
 
 [project.scripts]
