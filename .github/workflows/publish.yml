@@ -5,10 +5,14 @@ on:
     tags:
       - "[0-9]+.[0-9]+.[0-9]+"
       - "[0-9]+.[0-9]+.[0-9]+-[a-zA-Z0-9]+.[0-9]+"
+
 jobs:
   run:
     name: "Build and publish release"
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Required for trusted publishing
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -25,4 +29,4 @@ jobs:
         run: uv build
 
       - name: Publish
-        run: uv publish -t ${{ secrets.PYPI_TOKEN }}
+        uses: pypa/gh-action-pypi-publish@release/v1
