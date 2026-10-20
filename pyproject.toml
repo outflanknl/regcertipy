@@ -12,7 +12,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "certipy-ad==5.0.3",
+    "certipy-ad==5.1.0",
     "neo4j>=5.28.1",
 ]
 
