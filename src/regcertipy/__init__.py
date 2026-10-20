@@ -2,9 +2,10 @@ import argparse
 
 from certipy.commands.find import Find
 from regcertipy.models import CertTemplate
+from regcertipy.models.cert_template import MockLDAPEntry
 from regcertipy.parsers import RegfileParser, RegBofParser
 from datetime import datetime
-from .utils import sid_to_name
+from .utils import sid_to_name, filetime_bytes_to_str
 import functools
 
 
@@ -75,6 +76,8 @@ def main():
     )
     parser.add_argument("regfile", help="Path to the .reg file.")
     parser.add_argument("-s", "--sid-file", help="File containing the user's SIDs")
+    parser.add_argument("-e", "--enabled-file", help="File containing the enabled templates")
+    parser.add_argument("--ca-name", default="UNKNOWN", help="Name of the CA to associate with the enabled templates")
     parser.add_argument(
         "-f",
         "--input-format",
@@ -137,13 +140,22 @@ def main():
     elif args.input_format == "reg_bof":
         parser = RegBofParser(args.regfile)
 
+    cache_key = (
+        "HKEY_USERS\\.DEFAULT\\Software\\Microsoft"
+        "\\Cryptography\\CertificateTemplateCache"
+    )
+
     templates = []
 
     for key, dct in parser.to_dict().items():
-        if not key.casefold().startswith((
-            "HKEY_USERS\\.DEFAULT\\Software\\Microsoft"
-            "\\Cryptography\\CertificateTemplateCache\\").casefold()
-        ):
+        if key.casefold() == cache_key.casefold():
+            for name in ["Timestamp", "TimestampAfter"]:
+                when = filetime_bytes_to_str(dct.get(name))
+                if when:
+                    print(f"[*] Template cache {name}: {when}")
+            continue
+
+        if not key.casefold().startswith(cache_key.casefold()):
             continue
 
         name = key.split("\\")[-1]
@@ -164,6 +176,23 @@ def main():
         text=args.text,
         json=args.json,
     )
+
+    if args.enabled_file:
+        with open(args.enabled_file) as f:
+            enabled_templates = [line.strip() for line in f]
+
+        ca = MockLDAPEntry(
+            {
+                "name": args.ca_name,
+                "objectGUID": "{00000000-0000-0000-0000-000000000000}",
+                "certificateTemplates": enabled_templates,
+            }
+        )
+        enabled_count = find._link_cas_and_templates([ca], templates)
+        for template in templates:
+            template.set("enabled", bool(template.get("cas")))
+
+        print(f"[*] Found {enabled_count} enabled certificate templates")
 
     for template in templates:
         user_can_enroll, enrollable_sids = find.can_user_enroll_in_template(template)

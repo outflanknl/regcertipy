@@ -65,6 +65,7 @@ class CertTemplate:
         return MockLDAPEntry(
             {
                 "cn": self.name,
+                "name": self.name,
                 "displayName": self.display_name,
                 "Template OID": self.oid,
                 "validity_period": self.validity_period,
